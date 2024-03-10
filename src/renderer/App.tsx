@@ -3,20 +3,27 @@ import { useState } from 'react';
 
 function MainPage() {
   const [showPRView, setShowPRView] = useState<boolean>(true);
+  const [awsStep, setAwsStep] = useState<number>(0);
+  const deploymentMonitor = document.getElementById('deployment-monitor');
   const githubPR = document.getElementById('github-pull-request');
   const PRText = 'Enable auto-merge';
 
-  // @ts-expect-error
-  githubPR?.findInPage(PRText);
+  console.log('current step: ', awsStep);
 
-  githubPR?.addEventListener('found-in-page', () => {
-    // @ts-expect-error
-    githubPR?.stopFindInPage('keepSelection');
+  deploymentMonitor?.addEventListener('will-frame-navigate', () => {
+    setAwsStep(awsStep + 1);
   });
+
+  // // @ts-expect-error
+  // githubPR?.findInPage(PRText);
+
+  // githubPR?.addEventListener('found-in-page', () => {
+  //   // @ts-expect-error
+  //   githubPR?.stopFindInPage('keepSelection');
+  // });
 
   return (
     <div className="bg-newForest relative">
-      <h1 className="absolute right-4 top-4">TPG Deployment Portal</h1>
       <div className="bg-newForest flex flex-col items-center justify-center text-center">
         <h1>SLACK INTEGRATIONS TBD</h1>
         <section className="space-y-2">
@@ -41,19 +48,24 @@ function MainPage() {
 
         <h1>AWS BRANCHES</h1>
         <webview
-          src="https://us-west-2.console.aws.amazon.com/amplify/home?region=us-west-2#/d4wcggtzkx8v6"
-          style={{
-            height: '250px',
-            width: '950px',
-          }}
+          className="h-[480px] w-full"
+          partition="persist:aws"
+          src="https://travelpassgroup.okta.com/app/UserHome"
+        />
+        <webview
+          className="h-[480px] w-full"
+          partition="persist:aws"
+          src="https://d-9267487623.awsapps.com/start#/"
+        />
+        <webview
+          className="h-[480px] w-full"
+          partition="persist:aws"
+          src="https://d-9267487623.awsapps.com/start/#/saml/custom/361429333791%20%28TravelPass%20Group%20Production%29/MDQ3OTE0ODUzNzA4X2lucy1hZjdkZmMxZDk2MWI4NzhlX3AtM2FlZTA3Zjk5NGRjOWEyMg%3D%3D"
         />
         <div>GITHUB ACTIONS</div>
         <webview
+          className="h-[480px] w-[950px]"
           src="https://github.com/travelpassgroup/travelpass.com/actions"
-          style={{
-            height: '480px',
-            width: '950px',
-          }}
         />
       </div>
     </div>
