@@ -4,6 +4,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        beachDark: '#D9B59B',
+        forest: '#042E30',
         newForest: '#158481',
       },
     },
