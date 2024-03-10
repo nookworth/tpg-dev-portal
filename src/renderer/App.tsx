@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 function MainPage() {
   const [showPRView, setShowPRView] = useState<boolean>(true);
   const [awsStep, setAwsStep] = useState<number>(0);
-  // const PRText = 'Enable auto-merge';
 
   useEffect(() => {
     if (awsStep === 2) {
@@ -15,15 +14,15 @@ function MainPage() {
 
       masterBtn?.addEventListener('click', () => {
         // @ts-expect-error
-        awsConsole?.findInPage('master');
+        awsConsole?.findInPage('https://int.travelpass.com');
       });
       stgBtn?.addEventListener('click', () => {
         // @ts-expect-error
-        awsConsole?.findInPage('release-stg');
+        awsConsole?.findInPage('https://stg.travelpass.com');
       });
       prodBtn?.addEventListener('click', () => {
         // @ts-expect-error
-        awsConsole?.findInPage('prod');
+        awsConsole?.findInPage('https://travelpass.com');
       });
       awsConsole?.addEventListener('found-in-page', () => {
         // @ts-expect-error
@@ -59,26 +58,26 @@ function MainPage() {
         <h1>AWS BRANCHES</h1>
         {/* TODO: make it click 'AWS Amplify' and then 'travelpass.com' automatically on step 2 */}
         <section
-          className="text-center flex flex-col gap-4 items-center justify-evenly px-4 w-full"
+          className="text-center flex flex-col gap-4 h-[600px] items-center justify-evenly px-4 w-full"
           id="deploy-branch"
         >
           {awsStep === 0 && (
             <webview
-              className="h-[480px] w-full"
+              className="h-full w-full"
               id="okta-login"
               src="https://travelpassgroup.okta.com/app/UserHome"
             />
           )}
           {awsStep === 1 && (
             <webview
-              className="h-[480px] w-full"
+              className="h-full w-full"
               id="role-selection"
               src="https://d-9267487623.awsapps.com/start#/"
             />
           )}
           {awsStep === 2 && (
             <webview
-              className="h-[480px] w-full"
+              className="h-full w-full"
               id="aws-console"
               src="https://d-9267487623.awsapps.com/start/#/saml/custom/361429333791%20%28TravelPass%20Group%20Production%29/MDQ3OTE0ODUzNzA4X2lucy1hZjdkZmMxZDk2MWI4NzhlX3AtM2FlZTA3Zjk5NGRjOWEyMg%3D%3D"
             />
