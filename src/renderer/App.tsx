@@ -1,26 +1,36 @@
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function MainPage() {
   const [showPRView, setShowPRView] = useState<boolean>(true);
   const [awsStep, setAwsStep] = useState<number>(0);
-  const deploymentMonitor = document.getElementById('deployment-monitor');
-  const githubPR = document.getElementById('github-pull-request');
-  const PRText = 'Enable auto-merge';
+  // const PRText = 'Enable auto-merge';
 
-  console.log('current step: ', awsStep);
+  useEffect(() => {
+    if (awsStep === 2) {
+      const awsConsole = document.getElementById('aws-console');
+      const masterBtn = document.getElementById('master-btn');
+      const stgBtn = document.getElementById('stg-btn');
+      const prodBtn = document.getElementById('prod-btn');
 
-  deploymentMonitor?.addEventListener('will-frame-navigate', () => {
-    setAwsStep(awsStep + 1);
-  });
-
-  // // @ts-expect-error
-  // githubPR?.findInPage(PRText);
-
-  // githubPR?.addEventListener('found-in-page', () => {
-  //   // @ts-expect-error
-  //   githubPR?.stopFindInPage('keepSelection');
-  // });
+      masterBtn?.addEventListener('click', () => {
+        // @ts-expect-error
+        awsConsole?.findInPage('/\b/master/\b/');
+      });
+      stgBtn?.addEventListener('click', () => {
+        // @ts-expect-error
+        awsConsole?.findInPage('release-stg');
+      });
+      prodBtn?.addEventListener('click', () => {
+        // @ts-expect-error
+        awsConsole?.findInPage('release-prod');
+      });
+      awsConsole?.addEventListener('found-in-page', () => {
+        // @ts-expect-error
+        awsConsole?.stopFindInPage('clearSelection');
+      });
+    }
+  }, [awsStep]);
 
   return (
     <div className="bg-newForest relative">
@@ -28,7 +38,7 @@ function MainPage() {
         <h1>SLACK INTEGRATIONS TBD</h1>
         <section className="space-y-2">
           <button
-            className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-sm hover:scale-105"
+            className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
             onClick={(e) => {
               e.preventDefault();
               setShowPRView(!showPRView);
@@ -47,21 +57,82 @@ function MainPage() {
         </section>
 
         <h1>AWS BRANCHES</h1>
-        <webview
-          className="h-[480px] w-full"
-          partition="persist:aws"
-          src="https://travelpassgroup.okta.com/app/UserHome"
-        />
-        <webview
-          className="h-[480px] w-full"
-          partition="persist:aws"
-          src="https://d-9267487623.awsapps.com/start#/"
-        />
-        <webview
-          className="h-[480px] w-full"
-          partition="persist:aws"
-          src="https://d-9267487623.awsapps.com/start/#/saml/custom/361429333791%20%28TravelPass%20Group%20Production%29/MDQ3OTE0ODUzNzA4X2lucy1hZjdkZmMxZDk2MWI4NzhlX3AtM2FlZTA3Zjk5NGRjOWEyMg%3D%3D"
-        />
+        <section
+          className="text-center flex flex-row gap-4 items-center justify-evenly px-4 w-full"
+          id="deploy-branch"
+        >
+          {awsStep === 0 && (
+            <webview
+              className="h-[480px] w-4/5"
+              id="okta-login"
+              // partition="persist:aws"
+              src="https://travelpassgroup.okta.com/app/UserHome"
+            />
+          )}
+          {awsStep === 1 && (
+            <webview
+              className="h-[480px] w-4/5"
+              id="role-selection"
+              // partition="persist:aws"
+              src="https://d-9267487623.awsapps.com/start#/"
+            />
+          )}
+          {awsStep === 2 && (
+            <webview
+              className="h-[480px] w-4/5"
+              id="aws-console"
+              // partition="persist:aws"
+              src="https://d-9267487623.awsapps.com/start/#/saml/custom/361429333791%20%28TravelPass%20Group%20Production%29/MDQ3OTE0ODUzNzA4X2lucy1hZjdkZmMxZDk2MWI4NzhlX3AtM2FlZTA3Zjk5NGRjOWEyMg%3D%3D"
+            />
+          )}
+          <div className="flex flex-col gap-4">
+            <button
+              className="bg-beachDark border-2 border-forest h-[96px] rounded-md p-1 uppercase hover:shadow-md"
+              onClick={(e) => {
+                e.preventDefault();
+                setAwsStep(awsStep < 3 ? awsStep + 1 : awsStep);
+              }}
+              type="button"
+            >
+              {'Next Step --->'}
+            </button>
+            <button
+              className="bg-beachDark border-2 border-forest h-[96px] rounded-md p-1 uppercase hover:shadow-md"
+              onClick={(e) => {
+                e.preventDefault();
+                setAwsStep(awsStep > 0 ? awsStep - 1 : awsStep);
+              }}
+              type="button"
+            >
+              {'<--- Previous Step'}
+            </button>
+            {awsStep === 2 && (
+              <div className="flex flex-row gap-2">
+                <button
+                  className="bg-beachDark border-2 border-forest h-[96px] rounded-md p-1 hover:shadow-md"
+                  id="master-btn"
+                  type="button"
+                >
+                  Check master
+                </button>
+                <button
+                  className="bg-beachDark border-2 border-forest h-[96px] rounded-md p-1 hover:shadow-md"
+                  id="stg-btn"
+                  type="button"
+                >
+                  Check stg
+                </button>
+                <button
+                  className="bg-beachDark border-2 border-forest h-[96px] rounded-md p-1 hover:shadow-md"
+                  id="prd-btn"
+                  type="button"
+                >
+                  Check prod
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
         <div>GITHUB ACTIONS</div>
         <webview
           className="h-[480px] w-[950px]"
