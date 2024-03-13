@@ -60,10 +60,11 @@ const configuration: webpack.Configuration = {
     },
   },
 
+  // CSS rules copied from: https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/3084#issuecomment-1006822100
   module: {
     rules: [
       {
-        test: /\.s?(c|a)ss$/,
+        test: /\.s?css$/,
         use: [
           'style-loader',
           {
@@ -79,9 +80,21 @@ const configuration: webpack.Configuration = {
         include: /\.module\.s?(c|a)ss$/,
       },
       {
-        test: /\.css$/,
-        include: [webpackPaths.srcRendererPath],
-        use: ['style-loader', 'css-loader', 'postcss-loader'],
+        test: /\.s?css$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [require('tailwindcss'), require('autoprefixer')],
+              },
+            },
+          },
+        ],
+        exclude: /\.module\.s?(c|a)ss$/,
       },
       // Fonts
       {
