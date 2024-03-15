@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react';
 function MainPage() {
   const [showPRView, setShowPRView] = useState<boolean>(true);
   const [awsStep, setAwsStep] = useState<number>(0);
+  const [prInputValue, setPrInputValue] = useState<string>('');
+  const [prQuery, setPrQuery] = useState<string>(
+    'https://github.com/travelpassgroup/travelpass.com',
+  );
 
   useEffect(() => {
     if (awsStep === 2) {
@@ -11,6 +15,36 @@ function MainPage() {
       const masterBtn = document.getElementById('master-btn');
       const stgBtn = document.getElementById('stg-btn');
       const prodBtn = document.getElementById('prod-btn');
+
+      // const amplifyClick = new Promise((resolve, reject) => {
+      //   let awsAmplifyReqId;
+
+      //   awsConsole?.addEventListener('dom-ready', () => {
+      //     awsAmplifyReqId =
+      //       // @ts-expect-error
+      //       !awsConsole.isWaitingForResponse() &&
+      //       // @ts-expect-error
+      //       awsConsole?.findInPage('AWS Amplify');
+      //   });
+
+      //   if (awsAmplifyReqId) {
+      //     resolve(awsAmplifyReqId);
+      //   } else {
+      //     reject(new Error('Search string not found in page'));
+      //   }
+      // });
+
+      // amplifyClick
+      //   .then((reqId) => {
+      //     return awsConsole?.addEventListener('found-in-page', (event) => {
+      //       // @ts-expect-error
+      //       if (event.requestId === reqId) {
+      //         // @ts-expect-error
+      //         awsConsole?.stopFindInPage('activateSelection');
+      //       }
+      //     });
+      //   })
+      //   .catch((error) => console.log(error));
 
       masterBtn?.addEventListener('click', () => {
         // @ts-expect-error
@@ -36,27 +70,52 @@ function MainPage() {
       <div className="bg-newForest flex flex-col items-center justify-center text-center">
         <h1>SLACK INTEGRATIONS TBD</h1>
         <section className="space-y-2">
-          <button
-            className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
-            onClick={(e) => {
-              e.preventDefault();
-              setShowPRView(!showPRView);
-            }}
-            type="button"
-          >
-            Show/Hide Pull Request
-          </button>
+          <div className="flex flex-row justify-between items-center">
+            <form
+              className={`${!showPRView ? 'hidden' : ''}`}
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (prInputValue.match(/[#]?[0-9]+/)) {
+                  setPrQuery(
+                    `https://github.com/travelpassgroup/travelpass.com/pull/${prInputValue}`,
+                  );
+                }
+              }}
+            >
+              <label htmlFor="pr-number">
+                PR number:
+                <input
+                  className="bg-canyonLight border-2 border-forest ml-2 rounded-md"
+                  name="pr-number"
+                  value={prInputValue}
+                  onChange={(e) => {
+                    setPrInputValue(e.target.value);
+                  }}
+                />
+              </label>
+            </form>
+            <button
+              className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
+              onClick={(e) => {
+                e.preventDefault();
+                setShowPRView(!showPRView);
+              }}
+              type="button"
+            >
+              Show/Hide Pull Request
+            </button>
+          </div>
+
           <webview
             className={`h-[480px] w-[950px] github-pull-request ${
               !showPRView && 'hidden'
             }`}
             id="github-pull-request"
-            src="https://github.com/travelpassgroup/travelpass.com/pull/4061"
+            src={prQuery}
           />
         </section>
 
         <h1>AWS BRANCHES</h1>
-        {/* TODO: make it click 'AWS Amplify' and then 'travelpass.com' automatically on step 2 */}
         <section
           className="text-center flex flex-col gap-4 h-[600px] items-center justify-evenly px-4 w-full"
           id="deploy-branch"
