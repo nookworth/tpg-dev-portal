@@ -1,3 +1,4 @@
+// import { clipboard } from 'electron';
 import './App.css';
 import { useEffect, useState } from 'react';
 
@@ -9,42 +10,25 @@ function MainPage() {
     'https://github.com/travelpassgroup/travelpass.com',
   );
 
+  // TODO: figure out how to set zoom!!!
+  const githubPr = document.querySelector('.github-pull-request');
+  githubPr?.addEventListener('dom-ready', () => {
+    // @ts-expect-error
+    githubPr?.setZoomFactor(3.0);
+    // @ts-expect-error
+    githubPr?.setZoomLevel(-2);
+  });
+
+  const engFrontendReviewsUrl =
+    'https://app.slack.com/client/T044VSX8U/C039QHRA6TA';
+  const changeTrackerUrl = 'https://app.slack.com/client/T044VSX8U/C26604VST';
+
   useEffect(() => {
     if (awsStep === 2) {
       const awsConsole = document.getElementById('aws-console');
       const masterBtn = document.getElementById('master-btn');
       const stgBtn = document.getElementById('stg-btn');
       const prodBtn = document.getElementById('prod-btn');
-
-      // const amplifyClick = new Promise((resolve, reject) => {
-      //   let awsAmplifyReqId;
-
-      //   awsConsole?.addEventListener('dom-ready', () => {
-      //     awsAmplifyReqId =
-      //       // @ts-expect-error
-      //       !awsConsole.isWaitingForResponse() &&
-      //       // @ts-expect-error
-      //       awsConsole?.findInPage('AWS Amplify');
-      //   });
-
-      //   if (awsAmplifyReqId) {
-      //     resolve(awsAmplifyReqId);
-      //   } else {
-      //     reject(new Error('Search string not found in page'));
-      //   }
-      // });
-
-      // amplifyClick
-      //   .then((reqId) => {
-      //     return awsConsole?.addEventListener('found-in-page', (event) => {
-      //       // @ts-expect-error
-      //       if (event.requestId === reqId) {
-      //         // @ts-expect-error
-      //         awsConsole?.stopFindInPage('activateSelection');
-      //       }
-      //     });
-      //   })
-      //   .catch((error) => console.log(error));
 
       masterBtn?.addEventListener('click', () => {
         // @ts-expect-error
@@ -202,6 +186,64 @@ function MainPage() {
           className="h-[480px] w-[950px]"
           src="https://github.com/travelpassgroup/travelpass.com/actions"
         />
+        <section className="flex flex-row">
+          <div>
+            <button
+              className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
+              onClick={() => {
+                const slackChangeTracker = document.getElementById(
+                  'slack-change-tracker',
+                );
+                slackChangeTracker?.focus();
+                // @ts-expect-error
+                slackChangeTracker?.insertText('Deploying ');
+                // @ts-expect-error
+                slackChangeTracker?.insertText('`');
+                // @ts-expect-error
+                slackChangeTracker?.insertText('travelpass.com');
+                // @ts-expect-error
+                slackChangeTracker?.insertText('`');
+                // @ts-expect-error
+                slackChangeTracker?.insertText(' to ');
+                // @ts-expect-error
+                slackChangeTracker?.insertText('`');
+                // @ts-expect-error
+                slackChangeTracker?.insertText('INT');
+                // @ts-expect-error
+                slackChangeTracker?.insertText('`');
+              }}
+              type="button"
+            >
+              Post to change_tracker
+            </button>
+            <webview
+              className="h-[480px] w-[475px]"
+              id="slack-change-tracker"
+              src={changeTrackerUrl}
+            />
+          </div>
+          <div>
+            <button
+              className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
+              onClick={() => {
+                const slackChangeTracker = document.getElementById(
+                  'slack-eng-frontend-reviews',
+                );
+                slackChangeTracker?.focus();
+                // @ts-expect-error
+                slackChangeTracker?.insertText(prQuery);
+              }}
+              type="button"
+            >
+              Post to eng-frontend-reviews
+            </button>
+            <webview
+              className="h-[480px] w-[475px]"
+              id="slack-eng-frontend-reviews"
+              src={engFrontendReviewsUrl}
+            />
+          </div>
+        </section>
       </div>
     </div>
   );
