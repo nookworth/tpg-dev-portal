@@ -1,4 +1,3 @@
-// import { clipboard } from 'electron';
 import './App.css';
 import { useEffect, useState } from 'react';
 
