@@ -10,7 +10,6 @@ function MainPage() {
     'https://github.com/travelpassgroup/travelpass.com',
   );
 
-  // TODO: figure out how to set zoom!!!
   const githubPr = document.querySelector('.github-pull-request');
   githubPr?.addEventListener('dom-ready', () => {
     // @ts-expect-error
@@ -45,6 +44,10 @@ function MainPage() {
       awsConsole?.addEventListener('found-in-page', () => {
         // @ts-expect-error
         awsConsole?.stopFindInPage('clearSelection');
+      });
+      awsConsole?.addEventListener('dom-ready', () => {
+        // @ts-expect-error
+        awsConsole?.setZoomLevel(-2);
       });
     }
   }, [awsStep]);

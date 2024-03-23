@@ -24,6 +24,7 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let awsWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -82,7 +83,19 @@ const createWindow = async () => {
     },
   });
 
+  awsWindow = new BrowserWindow({
+    show: false,
+    width: 768,
+    height: 600,
+    webPreferences: {
+      preload: app.isPackaged
+        ? path.join(__dirname, 'preload.js')
+        : path.join(__dirname, '../../.erb/dll/preload.js'),
+    },
+  });
+
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+  awsWindow.loadURL(resolveHtmlPath('awsIndex.html'));
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -95,7 +108,22 @@ const createWindow = async () => {
     }
   });
 
+  awsWindow.on('ready-to-show', () => {
+    if (!awsWindow) {
+      throw new Error('"awsWindow" is not defined');
+    }
+    if (process.env.START_MINIMIZED) {
+      awsWindow.minimize();
+    } else {
+      awsWindow.show();
+    }
+  });
+
   mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+
+  awsWindow.on('closed', () => {
     mainWindow = null;
   });
 
