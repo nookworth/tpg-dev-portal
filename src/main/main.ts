@@ -23,6 +23,7 @@ class AppUpdater {
   }
 }
 
+let awsWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
@@ -75,6 +76,7 @@ const createWindow = async () => {
     height: 1440,
     icon: getAssetPath('icon.png'),
     webPreferences: {
+      devTools: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -82,7 +84,21 @@ const createWindow = async () => {
     },
   });
 
+  awsWindow = new BrowserWindow({
+    frame: true,
+    show: false,
+    width: 800,
+    height: 600,
+    icon: getAssetPath('icon.png'),
+    movable: true,
+    parent: mainWindow,
+    webPreferences: {
+      devTools: false,
+    },
+  });
+
   mainWindow.loadURL(resolveHtmlPath('index.html'));
+  awsWindow.loadURL('https://travelpassgroup.okta.com/app/UserHome');
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -92,6 +108,7 @@ const createWindow = async () => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+      awsWindow?.show();
     }
   });
 
