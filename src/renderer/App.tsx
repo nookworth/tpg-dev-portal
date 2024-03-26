@@ -23,6 +23,10 @@ function MainPage() {
     'https://app.slack.com/client/T044VSX8U/C039QHRA6TA';
   const changeTrackerUrl = 'https://app.slack.com/client/T044VSX8U/C26604VST';
 
+  // useEffect(() => {
+  //   window.open('https://travelpassgroup.okta.com/app/UserHome');
+  // }, []);
+
   useEffect(() => {
     if (awsStep === 2) {
       const awsConsole = document.getElementById('aws-console');

@@ -9,7 +9,7 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
@@ -23,7 +23,7 @@ class AppUpdater {
   }
 }
 
-let awsWindow: BrowserWindow | null = null;
+let awsWindow: any = null;
 let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
@@ -119,12 +119,6 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
-  mainWindow.webContents.setWindowOpenHandler((edata) => {
-    shell.openExternal(edata.url);
-    return { action: 'deny' };
-  });
-
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();
@@ -153,3 +147,30 @@ app
     });
   })
   .catch(console.log);
+
+// function ViewManager() {
+// const childWindowsRef = useRef(null);
+
+// useEffect(() => {
+//   Sortable.create(childWindowsRef, {
+//     animation: 500,
+//     easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+//     handle: '.drag-handle',
+//     sort: true,
+//   });
+// }, [childWindowsRef]);
+
+// React.useEffect(() => {
+//   awsWindow.show();
+// }, []);
+
+//   return (
+
+//     <div className="bg-forest h-48">
+//       <h1>DRAG HANDLE</h1>
+//       <div className="drag-handle">{awsWindow}</div>
+//     </div>
+//   );
+// }
+
+// ViewManager();
