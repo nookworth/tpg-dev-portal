@@ -1,10 +1,10 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 import path from 'path';
-import { app, BrowserWindow, BrowserView, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
-import MenuBuilder from './menu';
+// Keeping these updater imports for now in case we add auto-updating in the future
+// import { autoUpdater } from 'electron-updater';
+// import log from 'electron-log';
 import { resolveHtmlPath } from './util';
 import CONSTANTS from '../constants';
 
@@ -20,13 +20,13 @@ const {
   mainYOffset,
 } = CONSTANTS;
 
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+// class AppUpdater {
+//   constructor() {
+//     log.transports.file.level = 'info';
+//     autoUpdater.logger = log;
+//     autoUpdater.checkForUpdatesAndNotify();
+//   }
+// }
 
 let awsWindow: BrowserWindow | null = null;
 let ghActionsWindow: BrowserWindow | null = null;
@@ -98,12 +98,12 @@ const createWindow = async () => {
     width: mainWidth,
     height: mainHeight,
     icon: getAssetPath('icon.png'),
+    autoHideMenuBar: true,
     webPreferences: {
       devTools: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
-      webviewTag: true,
     },
   });
 
@@ -149,22 +149,41 @@ const createWindow = async () => {
   });
 
   mainWindow.on('will-move', (_, newBounds) => {
-    const { x, y } = newBounds;
-    awsWindow?.setPosition(x + childXOffset, y + childHeight + mainHeight);
-    ghPrWindow?.setPosition(x + childXOffset, y + ghYOffset);
-    ghActionsWindow?.setPosition(
-      x + childXOffset,
-      y + childHeight * 2 + mainHeight,
-    );
+    if (process.platform !== 'darwin') {
+      const { x, y } = newBounds;
+      awsWindow?.setPosition(x + childXOffset, y + childHeight + mainHeight);
+      ghPrWindow?.setPosition(x + childXOffset, y + ghYOffset);
+      ghActionsWindow?.setPosition(
+        x + childXOffset,
+        y + childHeight * 2 + mainHeight,
+      );
+    }
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
+  // TODO: minimize/maximize child windows along with parent
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
+
+ipcMain.on('pr-query', (_, prNumber) => {
+  ghPrWindow?.loadURL(
+    `https://github.com/travelpassgroup/travelpass.com/pull/${prNumber}`,
+  );
+});
+
+ipcMain.on('toggle-gh-windows', (_, prState) => {
+  if (prState === true) {
+    ghActionsWindow?.show();
+    ghPrWindow?.show();
+    awsWindow?.setBounds({ height: childHeight, y: childHeight + mainHeight });
+  } else {
+    ghActionsWindow?.hide();
+    ghPrWindow?.hide();
+    awsWindow?.setBounds({ height: childHeight * 2, y: mainHeight });
+  }
+});
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
