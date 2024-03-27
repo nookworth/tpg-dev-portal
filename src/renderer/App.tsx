@@ -2,6 +2,8 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 
+const { sendMessage } = window.electron.ipcRenderer;
+
 function MainPage() {
   const [showPRView, setShowPRView] = useState<boolean>(true);
   const [awsStep, setAwsStep] = useState<number>(0);
@@ -19,13 +21,9 @@ function MainPage() {
     githubPr?.setZoomLevel(-2);
   });
 
-  const engFrontendReviewsUrl =
-    'https://app.slack.com/client/T044VSX8U/C039QHRA6TA';
-  const changeTrackerUrl = 'https://app.slack.com/client/T044VSX8U/C26604VST';
-
-  // useEffect(() => {
-  //   window.open('https://travelpassgroup.okta.com/app/UserHome');
-  // }, []);
+  // const engFrontendReviewsUrl =
+  //   'https://app.slack.com/client/T044VSX8U/C039QHRA6TA';
+  // const changeTrackerUrl = 'https://app.slack.com/client/T044VSX8U/C26604VST';
 
   useEffect(() => {
     if (awsStep === 2) {
@@ -54,15 +52,15 @@ function MainPage() {
   }, [awsStep]);
 
   return (
-    <div className="bg-newForest relative">
-      <div className="bg-newForest flex flex-col items-center justify-center text-center">
-        <section className="mt-2 space-y-2">
-          <div className="flex flex-row justify-between items-center">
-            <form
+    <div className="bg-newForest flex flex-col justify-center relative h-[100vh]">
+      {/* <div className="bg-newForest flex flex-col items-center justify-center text-center"> */}
+      <div className="flex flex-row justify-between items-center">
+        {/* <form
               className={`${!showPRView ? 'hidden' : ''}`}
               onSubmit={(e) => {
                 e.preventDefault();
                 if (prInputValue.match(/[#]?[0-9]+/)) {
+                  sendMessage('pr-query', prQuery);
                   setPrQuery(
                     `https://github.com/travelpassgroup/travelpass.com/pull/${prInputValue}`,
                   );
@@ -80,29 +78,88 @@ function MainPage() {
                   }}
                 />
               </label>
-            </form>
-            <button
-              className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
-              onClick={(e) => {
-                e.preventDefault();
-                setShowPRView(!showPRView);
-              }}
-              type="button"
-            >
-              Show/Hide Pull Request
-            </button>
-          </div>
+            </form> */}
+        <button
+          className="bg-beachDark border-2 border-forest rounded-md p-1 uppercase hover:shadow-md"
+          onClick={(e) => {
+            e.preventDefault();
+            sendMessage('toggle-gh-windows', !showPRView);
+            setShowPRView(!showPRView);
+          }}
+          type="button"
+        >
+          Show/Hide GitHub
+        </button>
+        <section className="inline-flex flex-row gap-4">
+          <button
+            className={`bg-beachDark border-2 border-forest max-h-1/2 rounded-md p-1 uppercase hover:shadow-md ${
+              awsStep > 0 ? 'visible' : 'invisible'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              setAwsStep(awsStep > 0 ? awsStep - 1 : awsStep);
+            }}
+            type="button"
+          >
+            {'<--- AWS'}
+          </button>
+          <button
+            className={`bg-beachDark border-2 border-forest max-h-1/2 rounded-md p-1 uppercase hover:shadow-md ${
+              awsStep < 2 ? 'visible' : 'invisible'
+            }`}
+            onClick={(e) => {
+              e.preventDefault();
+              setAwsStep(awsStep < 3 ? awsStep + 1 : awsStep);
+            }}
+            type="button"
+          >
+            {'AWS --->'}
+          </button>
+        </section>
 
-          {/* <webview
+        <div className="flex flex-row gap-2">
+          <button
+            className={`${
+              awsStep === 2 ? 'visible' : 'invisible'
+            } bg-beachDark border-2 border-forest rounded-md p-1 hover:shadow-md`}
+            disabled={awsStep !== 2}
+            id="master-btn"
+            type="button"
+          >
+            master
+          </button>
+          <button
+            className={`${
+              awsStep === 2 ? 'visible' : 'invisible'
+            } bg-beachDark border-2 border-forest rounded-md p-1 hover:shadow-md`}
+            disabled={awsStep !== 2}
+            id="stg-btn"
+            type="button"
+          >
+            stg
+          </button>
+          <button
+            className={`${
+              awsStep === 2 ? 'visible' : 'invisible'
+            } bg-beachDark border-2 border-forest rounded-md p-1 hover:shadow-md`}
+            disabled={awsStep !== 2}
+            id="prod-btn"
+            type="button"
+          >
+            prod
+          </button>
+        </div>
+      </div>
+
+      {/* <webview
             className={`h-[480px] w-[950px] github-pull-request ${
               !showPRView && 'hidden'
             }`}
             id="github-pull-request"
             src={prQuery}
           /> */}
-        </section>
 
-        {/* <h1>AWS BRANCHES</h1>
+      {/* <h1>AWS BRANCHES</h1>
         <section
           className="text-center flex flex-col gap-4 h-[600px] items-center justify-evenly px-4 w-full"
           id="deploy-branch"
@@ -247,8 +304,8 @@ function MainPage() {
             />
           </div>
         </section> */}
-      </div>
     </div>
+    // </div>
   );
 }
 
