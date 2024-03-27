@@ -118,7 +118,6 @@ function MainPage() {
             {'AWS --->'}
           </button>
         </section>
-
         <div className="flex flex-row gap-2">
           <button
             className={`${
@@ -127,6 +126,9 @@ function MainPage() {
             disabled={awsStep !== 2}
             id="master-btn"
             type="button"
+            onClick={() => {
+              sendMessage('check-branch', 'master');
+            }}
           >
             master
           </button>
@@ -137,6 +139,9 @@ function MainPage() {
             disabled={awsStep !== 2}
             id="stg-btn"
             type="button"
+            onClick={() => {
+              sendMessage('check-branch', 'stg');
+            }}
           >
             stg
           </button>
@@ -147,6 +152,9 @@ function MainPage() {
             disabled={awsStep !== 2}
             id="prod-btn"
             type="button"
+            onClick={() => {
+              sendMessage('check-branch', 'prod');
+            }}
           >
             prod
           </button>

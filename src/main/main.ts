@@ -51,7 +51,6 @@ const childWindowDefaults: BrowserWindowConstructorOptions = {
   icon: getAssetPath('icon.png'),
   movable: false,
   hiddenInMissionControl: true,
-  kiosk: false,
   webPreferences: {
     devTools: false,
   },
@@ -102,7 +101,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     autoHideMenuBar: true,
     webPreferences: {
-      devTools: true,
+      devTools: false,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -111,9 +110,6 @@ const createWindow = async () => {
 
   awsWindow = new BrowserWindow({
     parent: mainWindow,
-    webPreferences: {
-      partition: 'persist:aws',
-    },
     y: childHeight + mainHeight,
     ...childWindowDefaults,
   });
@@ -175,6 +171,19 @@ const createWindow = async () => {
   // new AppUpdater();
 };
 
+ipcMain.on('check-branch', (_, branch) => {
+  switch (branch) {
+    case 'master':
+      return awsWindow?.webContents.findInPage('https://int.travelpass.com');
+    case 'stg':
+      return awsWindow?.webContents.findInPage('https://stg.travelpass.com');
+    case 'prod':
+      return awsWindow?.webContents.findInPage('https://travelpass.com');
+    default:
+      awsWindow?.webContents.findInPage('https://int.travelpass.com');
+  }
+});
+
 ipcMain.on('pr-query', (_, prNumber) => {
   ghPrWindow?.loadURL(
     `https://github.com/travelpassgroup/travelpass.com/pull/${prNumber}`,
@@ -192,6 +201,9 @@ ipcMain.on('set-aws-step', (_, stepNumber) => {
     awsWindow?.loadURL(
       'https://d-9267487623.awsapps.com/start/#/saml/custom/361429333791%20%28TravelPass%20Group%20Production%29/MDQ3OTE0ODUzNzA4X2lucy1hZjdkZmMxZDk2MWI4NzhlX3AtM2FlZTA3Zjk5NGRjOWEyMg%3D%3D',
     );
+    awsWindow?.webContents?.addListener('found-in-page', () => {
+      awsWindow?.webContents?.stopFindInPage('clearSelection');
+    });
   }
 });
 

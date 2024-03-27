@@ -3,6 +3,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 export type Channels =
+  | 'check-branch'
   | 'ipc-example'
   | 'toggle-gh-windows'
   | 'pr-query'
