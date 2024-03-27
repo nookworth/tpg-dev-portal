@@ -1,19 +1,24 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
-
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `npm run build` or `npm run build:main`, this file is compiled to
- * `./src/main.js` using webpack. This gives us some performance wins.
- */
 import path from 'path';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, BrowserView, ipcMain } from 'electron';
+import type { BrowserWindowConstructorOptions } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import CONSTANTS from '../constants';
+
+const {
+  childXOffset,
+  childHeight,
+  childWidth,
+  awsYOffset,
+  ghYOffset,
+  mainHeight,
+  mainWidth,
+  mainXOffset,
+  mainYOffset,
+} = CONSTANTS;
 
 class AppUpdater {
   constructor() {
@@ -23,8 +28,32 @@ class AppUpdater {
   }
 }
 
-let awsWindow: any = null;
+let awsWindow: BrowserWindow | null = null;
+let ghActionsWindow: BrowserWindow | null = null;
+let ghPrWindow: BrowserWindow | null = null;
 let mainWindow: BrowserWindow | null = null;
+
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'assets')
+  : path.join(__dirname, '../../assets');
+
+const getAssetPath = (...paths: string[]): string => {
+  return path.join(RESOURCES_PATH, ...paths);
+};
+
+const childWindowDefaults: BrowserWindowConstructorOptions = {
+  frame: false,
+  show: false,
+  width: childWidth,
+  height: childHeight,
+  x: childXOffset,
+  icon: getAssetPath('icon.png'),
+  movable: false,
+  parent: mainWindow || undefined,
+  webPreferences: {
+    devTools: false,
+  },
+};
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -62,18 +91,12 @@ const createWindow = async () => {
     await installExtensions();
   }
 
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
-
   mainWindow = new BrowserWindow({
+    x: mainXOffset,
+    y: mainYOffset,
     show: false,
-    width: 1024,
-    height: 1440,
+    width: mainWidth,
+    height: mainHeight,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       devTools: false,
@@ -85,20 +108,26 @@ const createWindow = async () => {
   });
 
   awsWindow = new BrowserWindow({
-    frame: true,
-    show: false,
-    width: 800,
-    height: 600,
-    icon: getAssetPath('icon.png'),
-    movable: true,
-    parent: mainWindow,
-    webPreferences: {
-      devTools: false,
-    },
+    ...childWindowDefaults,
+    y: childHeight + mainHeight,
+  });
+
+  ghActionsWindow = new BrowserWindow({
+    ...childWindowDefaults,
+    y: childHeight * 2 + mainHeight,
+  });
+
+  ghPrWindow = new BrowserWindow({
+    ...childWindowDefaults,
+    y: ghYOffset,
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
   awsWindow.loadURL('https://travelpassgroup.okta.com/app/UserHome');
+  ghPrWindow.loadURL('https://github.com/travelpassgroup/travelpass.com');
+  ghActionsWindow.loadURL(
+    'https://github.com/travelpassgroup/travelpass.com/actions',
+  );
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -109,11 +138,24 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
       awsWindow?.show();
+      ghPrWindow?.show();
+      ghActionsWindow?.show();
     }
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+    awsWindow = null;
+  });
+
+  mainWindow.on('will-move', (_, newBounds) => {
+    const { x, y } = newBounds;
+    awsWindow?.setPosition(x + childXOffset, y + childHeight + mainHeight);
+    ghPrWindow?.setPosition(x + childXOffset, y + ghYOffset);
+    ghActionsWindow?.setPosition(
+      x + childXOffset,
+      y + childHeight * 2 + mainHeight,
+    );
   });
 
   const menuBuilder = new MenuBuilder(mainWindow);
@@ -123,10 +165,6 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
-
-/**
- * Add event listeners...
- */
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -147,30 +185,3 @@ app
     });
   })
   .catch(console.log);
-
-// function ViewManager() {
-// const childWindowsRef = useRef(null);
-
-// useEffect(() => {
-//   Sortable.create(childWindowsRef, {
-//     animation: 500,
-//     easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-//     handle: '.drag-handle',
-//     sort: true,
-//   });
-// }, [childWindowsRef]);
-
-// React.useEffect(() => {
-//   awsWindow.show();
-// }, []);
-
-//   return (
-
-//     <div className="bg-forest h-48">
-//       <h1>DRAG HANDLE</h1>
-//       <div className="drag-handle">{awsWindow}</div>
-//     </div>
-//   );
-// }
-
-// ViewManager();

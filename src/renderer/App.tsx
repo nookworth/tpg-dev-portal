@@ -56,8 +56,7 @@ function MainPage() {
   return (
     <div className="bg-newForest relative">
       <div className="bg-newForest flex flex-col items-center justify-center text-center">
-        <h1>SLACK INTEGRATIONS TBD</h1>
-        <section className="space-y-2">
+        <section className="mt-2 space-y-2">
           <div className="flex flex-row justify-between items-center">
             <form
               className={`${!showPRView ? 'hidden' : ''}`}
@@ -94,16 +93,16 @@ function MainPage() {
             </button>
           </div>
 
-          <webview
+          {/* <webview
             className={`h-[480px] w-[950px] github-pull-request ${
               !showPRView && 'hidden'
             }`}
             id="github-pull-request"
             src={prQuery}
-          />
+          /> */}
         </section>
 
-        <h1>AWS BRANCHES</h1>
+        {/* <h1>AWS BRANCHES</h1>
         <section
           className="text-center flex flex-col gap-4 h-[600px] items-center justify-evenly px-4 w-full"
           id="deploy-branch"
@@ -247,7 +246,7 @@ function MainPage() {
               src={engFrontendReviewsUrl}
             />
           </div>
-        </section>
+        </section> */}
       </div>
     </div>
   );
