@@ -43,13 +43,15 @@ const getAssetPath = (...paths: string[]): string => {
 
 const childWindowDefaults: BrowserWindowConstructorOptions = {
   frame: false,
+  minimizable: true,
   show: false,
   width: childWidth,
   height: childHeight,
   x: childXOffset,
   icon: getAssetPath('icon.png'),
   movable: false,
-  parent: mainWindow || undefined,
+  hiddenInMissionControl: true,
+  kiosk: false,
   webPreferences: {
     devTools: false,
   },
@@ -100,7 +102,7 @@ const createWindow = async () => {
     icon: getAssetPath('icon.png'),
     autoHideMenuBar: true,
     webPreferences: {
-      devTools: false,
+      devTools: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -108,18 +110,24 @@ const createWindow = async () => {
   });
 
   awsWindow = new BrowserWindow({
-    ...childWindowDefaults,
+    parent: mainWindow,
+    webPreferences: {
+      partition: 'persist:aws',
+    },
     y: childHeight + mainHeight,
+    ...childWindowDefaults,
   });
 
   ghActionsWindow = new BrowserWindow({
-    ...childWindowDefaults,
+    parent: mainWindow,
     y: childHeight * 2 + mainHeight,
+    ...childWindowDefaults,
   });
 
   ghPrWindow = new BrowserWindow({
-    ...childWindowDefaults,
+    parent: mainWindow,
     y: ghYOffset,
+    ...childWindowDefaults,
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
@@ -173,6 +181,20 @@ ipcMain.on('pr-query', (_, prNumber) => {
   );
 });
 
+ipcMain.on('set-aws-step', (_, stepNumber) => {
+  if (stepNumber === 0) {
+    awsWindow?.loadURL('https://travelpassgroup.okta.com/app/UserHome');
+  }
+  if (stepNumber === 1) {
+    awsWindow?.loadURL('https://d-9267487623.awsapps.com/start#/');
+  }
+  if (stepNumber === 2) {
+    awsWindow?.loadURL(
+      'https://d-9267487623.awsapps.com/start/#/saml/custom/361429333791%20%28TravelPass%20Group%20Production%29/MDQ3OTE0ODUzNzA4X2lucy1hZjdkZmMxZDk2MWI4NzhlX3AtM2FlZTA3Zjk5NGRjOWEyMg%3D%3D',
+    );
+  }
+});
+
 ipcMain.on('toggle-gh-windows', (_, prState) => {
   if (prState === true) {
     ghActionsWindow?.show();
@@ -197,6 +219,11 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+    mainWindow?.on('minimize', () => {
+      const children = mainWindow?.getChildWindows();
+      console.log('children: ', children);
+      children?.forEach((child) => child.minimize());
+    });
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

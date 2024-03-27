@@ -97,6 +97,7 @@ function MainPage() {
             }`}
             onClick={(e) => {
               e.preventDefault();
+              sendMessage('set-aws-step', awsStep - 1);
               setAwsStep(awsStep > 0 ? awsStep - 1 : awsStep);
             }}
             type="button"
@@ -109,6 +110,7 @@ function MainPage() {
             }`}
             onClick={(e) => {
               e.preventDefault();
+              sendMessage('set-aws-step', awsStep + 1);
               setAwsStep(awsStep < 3 ? awsStep + 1 : awsStep);
             }}
             type="button"

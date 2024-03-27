@@ -2,7 +2,11 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example' | 'toggle-gh-windows' | 'pr-query';
+export type Channels =
+  | 'ipc-example'
+  | 'toggle-gh-windows'
+  | 'pr-query'
+  | 'set-aws-step';
 
 const electronHandler = {
   ipcRenderer: {
