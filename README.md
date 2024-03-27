@@ -1,7 +1,21 @@
+# Installation
+
+### These steps assume you are using yarn
+
+1. Clone the repo
+2. Delete your `.npmrc` file (don't worry, this will be generated again automatically by npm the next time you run `yarn`)
+   - This is usually a hidden file in the `~/` directory on Mac
+3. Delete `package-lock.json`
+4. Run `yarn`
+
 # Use
 
-Clone the repo and run `yarn start` or `npm start` from the directory <br></br>
-Or run the packaging command to build the app, and then run the executable file directly.
+### To start: run `yarn start` from the directory where you installed the repo
+    - I will eventually package the app for Mac so you can run it directly from an executable file
+### You will need your phone in order to sign into Okta and GitHub
+### After you have signed into Okta, you can use the `AWS --->` and `AWS <---` buttons
+    - Make sure the Okta signin has completed before you progress to the next step. After that, you don't need to     wait for anything.
+
 
 # Contributing
 
@@ -9,16 +23,12 @@ Clone the repo. Submit PRs to address known issues or create new features/improv
 
 # Rules
 
-<ol>
-<li>Don't remove comments unless you are the author, an admin, or unless you have addressed the related TODO. Comments will be used to keep track of TODOs and document code.</li>
-</ol>
+1. Don't remove comments unless you are the author, an admin, or unless you have addressed the related TODO. Comments will be used to keep track of TODOs and document code.
 
 # Issues
 
-<ul>
-<li>Handle child window maximizing/minimizing</li>
-<li>Fix child windows being underneath other app windows</li>
-<li>Code cleanup</li>
-<li>Package on Mac</li>
-<li>General styling improvements</li>
-</ul>
+- Handle child window maximizing/minimizing
+- Fix child windows being underneath other app windows
+- Code cleanup
+- Package on Mac
+- General styling improvements
