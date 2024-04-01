@@ -100,6 +100,7 @@ const createWindow = async () => {
     height: mainHeight,
     icon: getAssetPath('icon.png'),
     autoHideMenuBar: true,
+    resizable: false,
     webPreferences: {
       devTools: false,
       preload: app.isPackaged
@@ -110,7 +111,7 @@ const createWindow = async () => {
 
   awsWindow = new BrowserWindow({
     parent: mainWindow,
-    y: childHeight + mainHeight,
+    y: mainHeight,
     ...childWindowDefaults,
   });
 
@@ -122,7 +123,7 @@ const createWindow = async () => {
 
   ghPrWindow = new BrowserWindow({
     parent: mainWindow,
-    y: ghYOffset,
+    y: childHeight + mainHeight,
     ...childWindowDefaults,
   });
 
@@ -155,8 +156,8 @@ const createWindow = async () => {
   mainWindow.on('will-move', (_, newBounds) => {
     if (process.platform !== 'darwin') {
       const { x, y } = newBounds;
-      awsWindow?.setPosition(x + childXOffset, y + childHeight + mainHeight);
-      ghPrWindow?.setPosition(x + childXOffset, y + ghYOffset);
+      awsWindow?.setPosition(x + childXOffset, y + mainHeight);
+      ghPrWindow?.setPosition(x + childXOffset, y + childHeight + mainHeight);
       ghActionsWindow?.setPosition(
         x + childXOffset,
         y + childHeight * 2 + mainHeight,
@@ -180,7 +181,7 @@ ipcMain.on('check-branch', (_, branch) => {
     case 'prod':
       return awsWindow?.webContents.findInPage('https://travelpass.com');
     default:
-      awsWindow?.webContents.findInPage('https://int.travelpass.com');
+      return awsWindow?.webContents.findInPage('https://int.travelpass.com');
   }
 });
 
@@ -208,14 +209,16 @@ ipcMain.on('set-aws-step', (_, stepNumber) => {
 });
 
 ipcMain.on('toggle-gh-windows', (_, prState) => {
+  // @ts-expect-error
+  const { y: currentY } = awsWindow.getBounds();
   if (prState === true) {
     ghActionsWindow?.show();
     ghPrWindow?.show();
-    awsWindow?.setBounds({ height: childHeight, y: childHeight + mainHeight });
+    awsWindow?.setBounds({ height: childHeight, y: currentY });
   } else {
     ghActionsWindow?.hide();
     ghPrWindow?.hide();
-    awsWindow?.setBounds({ height: childHeight * 2, y: mainHeight });
+    awsWindow?.setBounds({ height: childHeight * 2, y: currentY });
   }
 });
 
@@ -233,7 +236,6 @@ app
     createWindow();
     mainWindow?.on('minimize', () => {
       const children = mainWindow?.getChildWindows();
-      console.log('children: ', children);
       children?.forEach((child) => child.minimize());
     });
     app.on('activate', () => {
