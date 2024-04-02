@@ -4,7 +4,7 @@ const CONSTANTS = {
   childWidth: 1024,
   awsYOffset: 600,
   ghYOffset: 100,
-  mainHeight: 100,
+  mainHeight: 175,
   mainWidth: 1024,
   mainXOffset: 0,
   mainYOffset: 0,

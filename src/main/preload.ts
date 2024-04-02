@@ -7,9 +7,13 @@ export type Channels =
   | 'ipc-example'
   | 'toggle-gh-windows'
   | 'pr-query'
-  | 'set-aws-step';
+  | 'set-aws-step'
+  | 'generate-review-message'
+  | 'generated-message';
 
 const electronHandler = {
+  generateReviewMessage: async () =>
+    ipcRenderer.invoke('generate-review-message'),
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
       ipcRenderer.send(channel, ...args);

@@ -1,6 +1,6 @@
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 import path from 'path';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain } from 'electron';
 import type { BrowserWindowConstructorOptions } from 'electron';
 // Keeping these updater imports for now in case we add auto-updating in the future
 // import { autoUpdater } from 'electron-updater';
@@ -12,8 +12,6 @@ const {
   childXOffset,
   childHeight,
   childWidth,
-  awsYOffset,
-  ghYOffset,
   mainHeight,
   mainWidth,
   mainXOffset,
@@ -102,7 +100,7 @@ const createWindow = async () => {
     autoHideMenuBar: true,
     resizable: false,
     webPreferences: {
-      devTools: false,
+      devTools: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
@@ -125,11 +123,14 @@ const createWindow = async () => {
     parent: mainWindow,
     y: childHeight + mainHeight,
     ...childWindowDefaults,
+    // webPreferences: {
+    //   devTools: true,
+    // },
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
   awsWindow.loadURL('https://travelpassgroup.okta.com/app/UserHome');
-  ghPrWindow.loadURL('https://github.com/travelpassgroup/travelpass.com');
+  ghPrWindow.loadURL('https://github.com/travelpassgroup/travelpass.com/pulls');
   ghActionsWindow.loadURL(
     'https://github.com/travelpassgroup/travelpass.com/actions',
   );
@@ -183,6 +184,27 @@ ipcMain.on('check-branch', (_, branch) => {
     default:
       return awsWindow?.webContents.findInPage('https://int.travelpass.com');
   }
+});
+
+ipcMain.handle('generate-review-message', async () => {
+  const url = ghPrWindow?.webContents.getURL().concat(' ');
+  const title = await ghPrWindow?.webContents.executeJavaScript(`
+    (function() {
+        const element = document.querySelector(".markdown-title");
+        if (element) {
+            return element.textContent;
+        }
+        return '';
+    })();
+  `);
+
+  const generatedMessage = !!url && !!title ? url.concat(title) : undefined;
+
+  if (generatedMessage) {
+    clipboard.writeText(generatedMessage);
+    return generatedMessage;
+  }
+  return 'Navigate to a pull request and try again';
 });
 
 ipcMain.on('pr-query', (_, prNumber) => {
