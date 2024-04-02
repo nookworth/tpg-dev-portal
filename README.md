@@ -27,8 +27,12 @@ Clone the repo. Submit PRs to address known issues or create new features/improv
 
 # Issues
 
-- Handle child window maximizing/minimizing
-- Fix child windows being underneath other app windows
+### Bugs
+- Fix GitHub windows positioning on MacOS
+- Fix hardcoded travelpass.com URLs when checking `master`, `stg`, and `prod`
+
+### Improvements
+- Add `yarn` script for packaging
+- Post generated #eng-frontend-reviews message directly to Slack (instead of copying to clipboard?)
 - Code cleanup
-- Package on Mac
 - General styling improvements
