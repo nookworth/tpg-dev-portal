@@ -1,3 +1,7 @@
+# Notes
+
+- v2: GitHub login, post to Slack from the app, see status indicators of PRs: coming soon!
+
 # Installation
 
 ### These steps assume you are using yarn
